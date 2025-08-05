@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - Salon Natuerelle</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-brand">Salon Natuerelle</a>
+      <ul class="nav-links">
+        <!-- Dynamic navigation -->
+      </ul>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="alerts-container"></div>
+
+    <div class="card">
+      <div class="card-header">
+        <h1 class="card-title">Welcome, <span id="userName"></span>!</h1>
+        <p>Role: <span id="userRole"></span></p>
+      </div>
+
+      <div class="stats-grid" id="statsGrid">
+        <!-- Dynamic stats -->
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Upcoming Reservations</h2>
+      </div>
+      <div id="upcomingReservations">
+        <!-- Dynamic content -->
+      </div>
+    </div>
+
+    <div class="card" id="quickActions">
+      <div class="card-header">
+        <h2 class="card-title">Quick Actions</h2>
+      </div>
+      <div class="grid grid-3" id="actionsGrid">
+        <!-- Dynamic actions based on role -->
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>
