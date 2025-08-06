@@ -37,6 +37,12 @@ app.use(express.urlencoded({ extended: true }));
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Dynamic config.js for frontend
+app.get('/config.js', (req, res) => {
+  res.type('application/javascript');
+  res.send(`window.API_URL = "${process.env.API_BASE_URL || 'http://localhost:' + PORT + '/api'}";`);
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

@@ -80,27 +80,32 @@ const serviceValidation = {
   update: [
     param('id')
       .isInt()
-      .withMessage('Invalid service ID'),
-    body('name')
+      .withMessage('Invalid reservation ID'),
+    body('status')
       .optional()
-      .trim()
-      .isLength({ min: 2, max: 100 })
-      .withMessage('Service name must be between 2 and 100 characters'),
-    body('description')
+      .customSanitizer(value => value.toLowerCase()) // ✅ convert to lowercase
+      .isIn(['pending', 'confirmed', 'completed', 'cancelled'])
+      .withMessage('Invalid status'),
+    body('reservationDate')
+      .optional()
+      .isISO8601()
+      .withMessage('Invalid date format')
+      .custom((value) => {
+        const date = new Date(value);
+        const now = new Date();
+        if (date <= now) {
+          throw new Error('Reservation date must be in the future');
+        }
+        return true;
+      }),
+    body('notes')
       .optional()
       .trim()
       .isLength({ max: 500 })
-      .withMessage('Description cannot exceed 500 characters'),
-    body('price')
-      .optional()
-      .isFloat({ min: 0 })
-      .withMessage('Price must be a positive number'),
-    body('duration')
-      .optional()
-      .isInt({ min: 15 })
-      .withMessage('Duration must be at least 15 minutes'),
+      .withMessage('Notes cannot exceed 500 characters'),
     validate
   ]
+
 };
 
 // Reservation validation rules

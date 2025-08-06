@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Manage Reservations - Salon Natuerelle</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-brand">Salon Natuerelle</a>
+      <ul class="nav-links">
+        <!-- Dynamic navigation -->
+      </ul>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="alerts-container"></div>
+
+    <div class="card">
+      <div class="card-header">
+        <h1 class="card-title">Manage Reservations</h1>
+      </div>
+
+      <div class="form-group">
+        <label for="statusFilter" class="form-label">Filter by Status</label>
+        <select id="statusFilter" class="form-control">
+          <option value="">All Reservations</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      <div id="reservationsContainer">
+        <!-- Example reservation, populated dynamically by JS -->
+        <!--
+        <div class="reservation-card">
+          <p><strong>Customer:</strong> Jane Doe</p>
+          <p><strong>Date:</strong> 2025-08-06</p>
+          <p><strong>Service:</strong> Haircut</p>
+
+          <div class="form-group">
+            <label>Status:</label>
+            <select class="form-control status-select" data-id="1">
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <button class="btn btn-primary update-status-btn" data-id="1">Update</button>
+        </div>
+        -->
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/manage-reservations.js"></script>
+</body>
+</html>

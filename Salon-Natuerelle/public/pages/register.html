@@ -10,11 +10,12 @@
     <div class="navbar">
         <div class="nav-container">
             <a href="/" class="nav-brand">Salon Natuerelle</a>
-            <ul class="nav-links">
-                <!-- Dynamic navigation -->
-            </ul>
+            <ul class="nav-links"></ul>
         </div>
     </div>
+
+    <div class="alerts-container"></div> <!-- Added for showAlert support -->
+
 
     <div class="auth-container">
         <div class="auth-card">
@@ -53,43 +54,13 @@
                 <button type="submit" class="btn btn-primary btn-block">Register</button>
             </form>
 
-            <div style="text-align: center; margin-top: 1rem;">
+            <div class="text-center mt-1">
                 <p>Already have an account? <a href="/pages/login.html">Login here</a></p>
             </div>
         </div>
     </div>
 
     <script src="../js/app.js"></script>
-    <script>
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (password !== confirmPassword) {
-                ui.showAlert('Passwords do not match', 'error');
-                return;
-            }
-            
-            try {
-                const response = await api.auth.register({ name, email, password });
-                
-                storage.setToken(response.token);
-                storage.setUser(response.user);
-                
-                ui.showAlert('Registration successful!', 'success');
-                
-                setTimeout(() => {
-                    window.location.href = '/pages/dashboard.html';
-                }, 1000);
-                
-            } catch (error) {
-                ui.showAlert(error.message, 'error');
-            }
-        });
-    </script>
+    <script src="../js/register.js"></script>
 </body>
 </html>

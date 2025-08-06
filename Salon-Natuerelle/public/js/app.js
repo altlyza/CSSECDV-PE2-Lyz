@@ -1,7 +1,13 @@
 // API Configuration
-//const API_URL = '/api';
-const API_URL = 'http://localhost:8080/api';
+let API_URL;
 
+// Detect if running in Codespaces (browser-based environment)
+if (window.location.hostname.includes('github.dev') || window.location.hostname.includes('app.github.dev')) {
+    API_URL = `${window.location.origin}/api`;
+} else {
+    // Local development
+    API_URL = 'http://localhost:3000/api';
+}
 
 // Storage helpers
 const storage = {
@@ -159,10 +165,14 @@ const ui = {
         const alertDiv = document.createElement('div');
         alertDiv.className = `alert alert-${type}`;
         alertDiv.textContent = message;
-        
-        const container = document.querySelector('.alerts-container') || document.querySelector('.container');
+
+        // Now supports multiple fallback containers
+        let container = document.querySelector('.alerts-container') || 
+                        document.querySelector('.container') || 
+                        document.body; // fallback
+
         container.insertBefore(alertDiv, container.firstChild);
-        
+
         setTimeout(() => alertDiv.remove(), 5000);
     },
 
@@ -206,33 +216,38 @@ const ui = {
 
 // Navigation helper
 navigation.updateNav = () => {
-  const user = storage.getUser();
-  const navLinks = document.querySelector('.nav-links');
+    const user = storage.getUser();
+    const navLinks = document.querySelector('.nav-links');
   
-  if (!navLinks) return;
+    if (!navLinks) return;
 
-  if (user.id) {
-    navLinks.innerHTML = `
-      <li><a href="/pages/dashboard.html">Dashboard</a></li>
-      <li><a href="/pages/services.html">Services</a></li>
-      ${user.role === 'Customer' ? '<li><a href="/pages/book.html">Book Now</a></li>' : ''}
-      <li><a href="/pages/my-reservations.html">My Reservations</a></li>
-      ${user.role === 'Admin' ? '<li><a href="/pages/admin.html">Admin Panel</a></li>' : ''}
-      <li><a href="#" id="logoutLink">Logout (${user.name})</a></li>
-    `;
+    if (user.id) {
+        navLinks.innerHTML = `
+            <li><a href="/pages/dashboard.html">Dashboard</a></li>
+            <li><a href="/pages/services.html">Services</a></li>
+            ${user.role === 'Customer' ? '<li><a href="/pages/book.html">Book Now</a></li>' : ''}
+            ${user.role === 'Customer' 
+                ? '<li><a href="/pages/my-reservations.html">My Reservations</a></li>' 
+                : user.role === 'Manager' 
+                    ? '<li><a href="/pages/manage-reservations.html">Manage Reservations</a></li>' 
+                    : ''
+            }
+            ${user.role === 'Admin' ? '<li><a href="/pages/admin.html">Admin Panel</a></li>' : ''}
+            <li><a href="#" id="logoutLink">Logout (${user.name})</a></li>
+        `;
 
-    document.getElementById('logoutLink').addEventListener('click', e => {
-      e.preventDefault();
-      logout();
-    });
+        document.getElementById('logoutLink').addEventListener('click', e => {
+            e.preventDefault();
+            logout();
+        });
 
-  } else {
-    navLinks.innerHTML = `
-      <li><a href="/pages/services.html">Services</a></li>
-      <li><a href="/pages/login.html">Login</a></li>
-      <li><a href="/pages/register.html">Register</a></li>
-    `;
-  }
+    } else {
+        navLinks.innerHTML = `
+            <li><a href="/pages/services.html">Services</a></li>
+            <li><a href="/pages/login.html">Login</a></li>
+            <li><a href="/pages/register.html">Register</a></li>
+        `;
+    }
 };
 
 // Authentication check
@@ -253,7 +268,13 @@ const logout = () => {
     window.location.href = '/pages/login.html';
 };
 
-// Initialize navigation on page load
+// Optional: Redirect managers away from my-reservations.html
 document.addEventListener('DOMContentLoaded', () => {
     navigation.updateNav();
+    const user = storage.getUser();
+    const currentPage = window.location.pathname;
+
+    if (user.role === 'Manager' && currentPage.includes('my-reservations.html')) {
+        window.location.href = '/pages/manage-reservations.html';
+    }
 });

@@ -7,7 +7,6 @@ const createReservation = async (req, res, next) => {
   try {
     const { serviceId, reservationDate, notes } = req.body;
 
-    // Verify service exists and is active
     const service = await Service.findOne({
       where: { id: serviceId, isActive: true }
     });
@@ -16,7 +15,6 @@ const createReservation = async (req, res, next) => {
       return res.status(404).json({ error: 'Service not found or inactive' });
     }
 
-    // Check for conflicting reservations (same service at same time)
     const existingReservation = await Reservation.findOne({
       where: {
         serviceId,
@@ -37,7 +35,6 @@ const createReservation = async (req, res, next) => {
       status: 'pending'
     });
 
-    // Log the action
     await Logger.logUserAction(
       'RESERVATION_CREATED',
       `Customer ${req.user.email} booked ${service.name} for ${reservationDate}`,
@@ -45,7 +42,6 @@ const createReservation = async (req, res, next) => {
       req
     );
 
-    // Fetch with associations
     const fullReservation = await Reservation.findByPk(reservation.id, {
       include: [
         { model: Service },
@@ -62,15 +58,13 @@ const createReservation = async (req, res, next) => {
   }
 };
 
-// Get reservations (filtered by role)
+// Get reservations
 const getReservations = async (req, res, next) => {
   try {
     const { page = 1, limit = 10, status, date } = req.query;
     const offset = (page - 1) * limit;
-
     const whereClause = {};
 
-    // Customers can only see their own reservations
     if (req.user.role === 'Customer') {
       whereClause.userId = req.user.id;
     }
@@ -83,10 +77,7 @@ const getReservations = async (req, res, next) => {
       const startDate = new Date(date);
       const endDate = new Date(date);
       endDate.setDate(endDate.getDate() + 1);
-      
-      whereClause.reservationDate = {
-        [Op.between]: [startDate, endDate]
-      };
+      whereClause.reservationDate = { [Op.between]: [startDate, endDate] };
     }
 
     const { count, rows } = await Reservation.findAndCountAll({
@@ -130,7 +121,6 @@ const getReservation = async (req, res, next) => {
       return res.status(404).json({ error: 'Reservation not found' });
     }
 
-    // Customers can only view their own reservations
     if (req.user.role === 'Customer' && reservation.userId !== req.user.id) {
       return res.status(403).json({ error: 'Access denied' });
     }
@@ -144,6 +134,9 @@ const getReservation = async (req, res, next) => {
 // Update reservation
 const updateReservation = async (req, res, next) => {
   try {
+    console.log("UPDATE REQUEST BODY:", req.body); // debug
+    console.log("USER:", req.user); // debug
+
     const { id } = req.params;
     const { status, reservationDate, notes } = req.body;
 
@@ -162,14 +155,13 @@ const updateReservation = async (req, res, next) => {
       return res.status(403).json({ error: 'Customers can only cancel reservations' });
     }
 
-    // Update fields if provided
+    // ✅ Managers & Admins can freely update status
     if (status !== undefined) reservation.status = status;
     if (reservationDate !== undefined) reservation.reservationDate = reservationDate;
     if (notes !== undefined) reservation.notes = notes;
 
     await reservation.save();
 
-    // Log the action
     await Logger.logUserAction(
       'RESERVATION_UPDATED',
       `${req.user.role} ${req.user.email} updated reservation ${id}`,
@@ -177,7 +169,6 @@ const updateReservation = async (req, res, next) => {
       req
     );
 
-    // Fetch with associations
     const updatedReservation = await Reservation.findByPk(id, {
       include: [
         { model: Service },
@@ -194,7 +185,7 @@ const updateReservation = async (req, res, next) => {
   }
 };
 
-// Delete reservation (cancel)
+// Cancel reservation
 const deleteReservation = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -204,16 +195,13 @@ const deleteReservation = async (req, res, next) => {
       return res.status(404).json({ error: 'Reservation not found' });
     }
 
-    // Customers can only delete their own reservations
     if (req.user.role === 'Customer' && reservation.userId !== req.user.id) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    // Set status to cancelled instead of hard delete
     reservation.status = 'cancelled';
     await reservation.save();
 
-    // Log the action
     await Logger.logUserAction(
       'RESERVATION_CANCELLED',
       `${req.user.role} ${req.user.email} cancelled reservation ${id}`,
@@ -234,3 +222,6 @@ module.exports = {
   updateReservation,
   deleteReservation
 };
+
+console.log('UPDATE REQUEST BODY:', req.body);
+console.log('USER ROLE:', req.user.role);
